@@ -96,7 +96,7 @@ void* socketSend(char* data,size_t len)
 	int strlen = 1024;
 	char str[strlen];
 	int sendLen =0;
-printf("%d\n",len) ;
+//printf("%d\n",len) ;
 	if(len <= sizeof(str)){
 		send(client_st,data,len,0);
 	}else{

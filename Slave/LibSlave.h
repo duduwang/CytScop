@@ -26,4 +26,8 @@ int dev_close();
 //led
 int dev_LED(int isState);
 
+
+int set(int register_offset ,uint16_t* val);
+int get(int register_offset ,uint16_t* val);
+
 #endif

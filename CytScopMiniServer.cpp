@@ -6,6 +6,7 @@
 #include "Cam/DxImageProc.h"
 #include "Socket/Socket.h"
 #include "Base/Bash64.h"
+#include "Base/ExecuteCommand.h"
 #include <string.h>
 #include <cjson/cJSON.h>
 
@@ -14,13 +15,16 @@
 //#include<opencv2/imgcodecs/imgcodecs_c.h>
 
 
-enum CMDS { IMG=1000,WIFI };
-//char* response(int code,char* data);
+enum DEVICE { CAM=1,SYS,STM };
 char* response(int code,const char* msg,cJSON* data);
 
 
 using namespace std;
 using namespace cv;
+
+
+
+
 
 char* m_rgb_image=NULL;
 
@@ -108,21 +112,45 @@ static void GX_STDC OnFrameCallbackFun(GX_FRAME_CALLBACK_PARAM* pFrame)
 }
 
 
+int system_option(const cJSON* json,char *result)
+{
 
+	char* cmd = cJSON_GetObjectItem(json, "cmd")->valuestring;
+	char* execute_cmd = cmd;
+	return execute_command(execute_cmd,result);
+}
+
+int modbus_option(const cJSON* json,uint16_t* val)
+{
+	char* cmd = cJSON_GetObjectItem(json, "cmd")->valuestring;
+	const cJSON* data = cJSON_GetObjectItem(json, "data");
+	int register_offset = cJSON_GetObjectItem(data,"register_offset")->valueint;
+	int ret_val=0;
+	//uint16_t* val ;
+	if(strcmp(cmd,"Set")==0)
+	{	
+		uint16_t tmp;
+		char* p  = cJSON_GetObjectItem(cJSON_GetObjectItem(json, "data"),"val")->valuestring;
+		sscanf(p,"%X",tmp);
+		val[0] =tmp;
+		printf("val %X\n",val);
+		ret_val = set(register_offset,val);
+		return ret_val > -1?0:-1;
+	}
+	ret_val= get(register_offset,val);
+	return ret_val > -1?0:-1;
+}
 
 int main()
 {
-//char* x = "{\"a\":\"i\"}";
-//recvStrData(x);
-//cJSON *obj = cJSON_CreateObject();
-//cJSON_AddStringToObject(obj,"day","1");
-//char* tmp = response(-1,"asfasdf",obj);
-//printf("%s\n",tmp);
-//return 0;
+	cJSON* jsonObj = cJSON_CreateObject();
+	cJSON_AddStringToObject(jsonObj,"cmd","ls");
+	char ret[1024*4];
+	int code =system_option(jsonObj,ret);
+	printf("out is %s code is %d\n",ret,code);
+return 0;
 	//链接下位机
 	dev_conn("/dev/ttyS0", 115200, 'N', 8, 1);
-	dev_LED(1);
-	dev_close();
 
 	printf("open Caming...\n");
 	Cam_Open();
@@ -158,6 +186,7 @@ int main()
 
 		}
 	}
+	dev_close();
 
 	return 0;
 
@@ -170,45 +199,68 @@ char* recvStrData(char* jsonstr)
 		printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 		return response(-1,cJSON_GetErrorPtr(),NULL);
 	}
-	cJSON* cmd = cJSON_GetObjectItem(jsonObj, "cmd");
-	if(cmd == NULL)
+	cJSON* deviceId = cJSON_GetObjectItem(jsonObj, "id");
+	if(deviceId  == NULL)
 	{
 		printf("Error before: [%s]\n", cJSON_GetErrorPtr());
 		return response(-1,cJSON_GetErrorPtr(),NULL);
 	}
-	int command = cmd->valueint;
-//	cJSON_Print(cmd);
+	int id = deviceId->valueint;
 	int code =0;//0 成功 
 	char *msg =NULL;
-	cJSON* data = NULL;
-	switch(command)
+	cJSON* data = cJSON_CreateObject();
+	switch(id)
 	{
-		case WIFI:
-			printf("cmd is wifi: %d\n",WIFI);
-			msg = "set wifi ok";
+		case SYS:
+			{
+				char ret[1024*4];
+				code= system_option(jsonObj,ret);
+				msg=ret;
+			}
 			break;
-		case IMG:
-			printf("cmd is IMG: %d\n",IMG);
-			msg = "set img ok";
-			break;
+		case STM:{
+				 uint16_t* val = NULL;	
+				 code = modbus_option(jsonObj,val);
+				 const char* p= modbus_strerror(errno);
+				 if(sizeof(&p)>0)
+				 {
+					 code = -1;
+					 msg = (char*)malloc(sizeof(char)*sizeof(&p));
+					 strcpy(msg,modbus_strerror(errno));
+				 }
+				 p = NULL;
+				 char tmp[2];
+				 sprintf(tmp,"%x",val);
+				 cJSON_AddStringToObject(data,"val",tmp);
+			 }
+			 break;
+		case CAM:
+			 break;
 		default :
-			printf("cmd is default: %d\n",IMG);
-			msg = "set defaut ok";
-			
+			 code = -1;
+			 msg = "deviceId is err\n";
 	}
 	cJSON_Delete(jsonObj);
-	return response(code,msg,data);
+	char* ret = response(code,msg,data);
+	//free(msg);
+	return ret;
 } 
 
 char* response(int code,const char* msg,cJSON* data)
 {
 	cJSON *ret = cJSON_CreateObject();
 	cJSON_AddNumberToObject(ret,"code",code);
-	cJSON_AddStringToObject(ret,"msg",msg);
+	if(msg==NULL){
+		cJSON_AddStringToObject(ret,"msg","sucess");
+	}else{
+		cJSON_AddStringToObject(ret,"msg",msg);
+	}
 	cJSON_AddItemToObject(ret,"data",data);
 
 	char *json_data = cJSON_Print(ret);
 	cJSON_Delete(ret);
-	cJSON_Delete(data);
+	//cJSON_Delete(data);
 	return json_data;
 }
+
+
