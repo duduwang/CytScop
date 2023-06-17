@@ -5,8 +5,8 @@
 #include "Cam/LibCam.h"
 #include "Cam/DxImageProc.h"
 #include "Socket/Socket.h"
-#include "Base/Bash64.h"
 #include "Base/ExecuteCommand.h"
+#include "Base/Bash64.h"
 #include <string.h>
 #include <cjson/cJSON.h>
 
@@ -21,9 +21,6 @@ char* response(int code,const char* msg,cJSON* data);
 
 using namespace std;
 using namespace cv;
-
-
-
 
 
 //图像回调处理函数
@@ -133,8 +130,106 @@ int modbus_option(const cJSON* json,uint16_t* val)
 	return ret_val > -1?0:-1;
 }
 
+int cam_option(const cJSON* json,const cJSON* outdata) 
+{
+
+	Cam_Method* sMethod = getMethod("Cam_SetAutoWhite");
+	if(sMethod == NULL)
+	{
+		printf("sMethod is null");
+		return -1;
+	}
+	if(sMethod->nmethod != NULL)
+	{
+		printf("nmethod is %s\n",sMethod->method_name);
+		int x = (sMethod->nmethod)();
+		printf("nmethod return %d\n",x);
+		return  0;
+	}
+
+/*
+	char* cmd = cJSON_GetObjectItem(json, "cmd")->valuestring;
+	const cJSON* data = cJSON_GetObjectItem(json, "data");
+	if(strcmp(cmd,"SetGain")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetGain(dGain);
+	}
+	if(strcmp(cmd,"SetExposureTime")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetExposure(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_R")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_R(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_G")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_G(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_B")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_B(dGain);
+	}
+	if(strcmp(cmd,"SetAutoWhite")==0)
+	{	
+		return Cam_SetAutoWhite();
+	}
+	if(strcmp(cmd,"SetTrigger")==0)
+	{	
+		bool isTrigger = = cJSON_GetObjectItem(data, "val")->boolvalue;
+		return Cam_Trigger(isTrigger);
+	}
+	if(strcmp(cmd,"Reset")==0)
+	{	
+		return Cam_Reset();
+	}
+	if(strcmp(cmd,"SetAll")==0)
+	{	
+		double[5] dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetAll(dGain);
+	}
+	if(strcmp(cmd,"SetGain")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetGain(dGain);
+	}
+	if(strcmp(cmd,"SetExposureTime")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetExposure(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_R")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_R(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_G")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_G(dGain);
+	}
+	if(strcmp(cmd,"SetBalanceRatio_B")==0)
+	{	
+		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
+		return Cam_SetBalanceRatio_B(dGain);
+	}
+
+*/
+}
+
+
 int main()
 {
+	cJSON* jsonObj = cJSON_CreateObject();
+	cJSON* data= cJSON_CreateObject();
+printf("test \n");
+	cam_option(jsonObj,data);
+	return 0;
 /*
 	cJSON* jsonObj = cJSON_CreateObject();
 	cJSON_AddStringToObject(jsonObj,"cmd","ls");
@@ -229,6 +324,10 @@ char* recvStrData(char* jsonstr)
 			 }
 			 break;
 		case CAM:
+			 {
+				 code = cam_option(jsonObj,data);
+				 msg = "ok";
+			 }
 			 break;
 		default :
 			 code = -1;

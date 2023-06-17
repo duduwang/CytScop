@@ -38,6 +38,7 @@ endif()
 # 添加 子目录
 
 add_subdirectory(Cam)
+add_subdirectory(Base)
 add_subdirectory(Slave)
 add_subdirectory(Socket)
 
@@ -45,4 +46,4 @@ add_subdirectory(Socket)
 # 指定生成目标 
 add_executable(CytScopMiniServer CytScopMiniServer.cpp)
 # 添加链接库
-target_link_libraries(CytScopMiniServer LibSlave Socket LibCam -lmodbus -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)
+target_link_libraries(CytScopMiniServer LibSlave Socket LibCam Base -lmodbus -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)

@@ -1,6 +1,6 @@
 
 #include"LibCam.h"
-
+#include "../Base/Bash64.h"
 
 
 
@@ -377,30 +377,30 @@ int Cam_SetBalanceRatio_B(double *dGain )
 	return  1;
 }
 
-int Cam_GetAll(double *dGain[5] )
+int Cam_GetAll(double *dGain)
 {
 //Cam_GetExposure
-	int ret= Cam_GetExposure(dGain[0]);
+	int ret= Cam_GetExposure(dGain);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetGain(dGain[1]);
+	ret = Cam_GetGain(dGain+1);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_R(dGain[2]);
+	ret = Cam_GetBalanceRatio_R(dGain+2);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_G(dGain[3]);
+	ret = Cam_GetBalanceRatio_G(dGain+3);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_B(dGain[4]);
+	ret = Cam_GetBalanceRatio_B(dGain+4);
 	if(ret == 0 )
 	{
 		return 0;
@@ -408,29 +408,29 @@ int Cam_GetAll(double *dGain[5] )
 	return 1;
 }
 
-int Cam_SetAll(double *dGain[5])
+int Cam_SetAll(double *dGain)
 {
-	int ret = Cam_SetExposure(*dGain[0]);
+	int ret = Cam_SetExposure(*dGain);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetGain(*dGain[1]);
+	ret=Cam_SetGain(*(dGain+1));
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_R(dGain[2]);
+	ret=Cam_SetBalanceRatio_R(dGain+2);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_G(dGain[3]);
+	ret=Cam_SetBalanceRatio_G(dGain+3);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_B(dGain[4]);
+	ret=Cam_SetBalanceRatio_B(dGain+4);
 	if(ret == 0 )
 	{
 		return 0;
@@ -446,3 +446,35 @@ int Cam_Reset()
 	}
 	return 1;
 }
+struct Cam_Method arr[] = {{"Cam_GetExposure",NULL,Cam_GetExposure}
+			   ,{"Cam_SetExposure",Cam_SetExposure}
+			   ,{"Cam_Trigger",NULL,NULL,Cam_Trigger}
+			   ,{"Cam_Snap",NULL,NULL,NULL,Cam_Snap}
+			   ,{"Cam_GetGain",NULL,Cam_GetGain}
+			   ,{"Cam_SetGain",Cam_SetGain}
+			   ,{"Cam_SetAutoWhite",NULL,NULL,NULL,NULL,Cam_SetAutoWhite}
+			   ,{"Cam_GetBalanceRatio_R",NULL,Cam_GetBalanceRatio_R}
+			   ,{"Cam_GetBalanceRatio_G",NULL,Cam_GetBalanceRatio_G}
+			   ,{"Cam_SetBalanceRatio_B",NULL,Cam_GetBalanceRatio_B}
+			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_R}
+			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_G}
+			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_B}
+			   ,{"Cam_GetAll",NULL,Cam_GetAll}
+			   ,{"Cam_SetAll",NULL,Cam_SetAll}
+			   ,{"Cam_Reset",NULL,NULL,NULL,NULL,Cam_Reset}
+			  };
+
+
+Cam_Method* getMethod(char* method_name)
+{
+	for(int i=0;i<sizeof(arr)/sizeof(Cam_Method);i++)
+	{
+		char* tmp = arr[i].method_name;
+		if(strcmp(method_name,tmp)==0)
+		{
+			return &arr[i];
+		}
+	}
+	return NULL;
+}
+

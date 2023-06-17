@@ -9,7 +9,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv_modules.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include "../Base/Bash64.h"
+
 #include "DxImageProc.h"
 
 using namespace std;
@@ -32,7 +32,7 @@ int Cam_SetAcquisition(bool isAcquisition);
 
 
 //拍摄
-int Cam_Snap();
+int Cam_Snap(char* img);
 
 
 //触发模式开关
@@ -64,9 +64,23 @@ int Cam_SetBalanceRatio_G(double *dGain );
 int Cam_GetBalanceRatio_B(double *dGain );
 int Cam_SetBalanceRatio_B(double *dGain );
 
-int Cam_GetAll(double *dGain[5]);
-int Cam_SetAll(double *dGain[5]);
+int Cam_GetAll(double *dGain);
+int Cam_SetAll(double *dGain);
 int Cam_Reset();
+
+struct Cam_Method
+{
+	char* method_name;
+	int(*dmethod)(double);
+	int(*dpmethod)(double*);
+	int(*bmethod)(bool);
+	int(*cmethod)(char*);
+	int(*nmethod)();
+};
+
+
+Cam_Method* getMethod(char* method_name);
+
 #endif
 
 
