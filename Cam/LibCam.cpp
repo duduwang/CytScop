@@ -68,37 +68,67 @@ int Cam_RegisterCapture(GXCaptureCallBack callBackFun)
 //false 关闭
 int Cam_SetAcquisition(bool isAcquisition)
 {
-
-
 	//发送开采命令
 	status = GXSendCommand(hDevice, isAcquisition? GX_COMMAND_ACQUISITION_START :GX_COMMAND_ACQUISITION_STOP);
-		//发送停采命令
-	//status = GXSendCommand(hDevice, GX_COMMAND_ACQUISITION_STOP);
-
 	if (status != GX_STATUS_SUCCESS)
 	{
 		return 0;
-
 	}
 
 	return 1;
-
-
 }
 
 //相机初始化
+/*
 int Cam_Inti()
 {
-	//TODO
 }
+*/
+char* ImgBuild(PGX_FRAME_BUFFER pFrame )
+{
+	char* m_rgb_image=NULL;
+	int x =0;
+	string imgBase64 = NULL;
+	if (pFrame->nStatus == GX_FRAME_STATUS_SUCCESS)
+	{
+		int height =pFrame->nHeight;
+		int width =pFrame->nWidth;
 
+		Mat src;
+		m_rgb_image=new char[width*height*3];
+
+		//创建MAT
+		src.create(height,width,CV_8UC3);
+		//去除const`
+		void* imgBuf = const_cast<void*>(pFrame->pImgBuf);
+
+		//图像raw8转RGB格式
+		DxRaw8toRGB24(imgBuf,m_rgb_image,width, height,RAW2RGB_NEIGHBOUR,DX_PIXEL_COLOR_FILTER(BAYERBG),false);
+		//copy 图像内存
+		memcpy(src.data,m_rgb_image,width*height*3);
+
+		vector<uchar> imgdata;
+		imencode(".jpg",src,imgdata);
+		char charray[imgdata.size()];
+		//vector全部转到数组
+		memcpy(charray, &imgdata[0], imgdata.size() * sizeof(imgdata[0]));
+		imgBase64 = base64_encode(charray,sizeof(charray));
+		delete[] m_rgb_image;
+	}
+	return &imgBase64[0];
+}
 
 //拍摄
-int Cam_Snap()
+int Cam_Snap(char* img)
 {
-	//TODO	
+	PGX_FRAME_BUFFER pFrameBuffer;
+	status = GXStreamOn(hDevice);
+	if (status == GX_STATUS_SUCCESS) {
+		img = ImgBuild(pFrameBuffer);
+		GXDQBuf(hDevice, &pFrameBuffer, 1000);
+		GXStreamOff(hDevice);
+	}
 }
-
 
 
 //触发模式开关
@@ -195,19 +225,13 @@ int Cam_SetExposure(double dExposureTime)
 //获取增益
 int Cam_GetGain(double *dGain )
 {
-
-
-	
 	status = GXGetFloat(hDevice, GX_FLOAT_GAIN, dGain);
 	if (status != GX_STATUS_SUCCESS)
 	{
 		return 0;
-
 	}
 
 	return  1;
-
-
 }
 
 
@@ -238,9 +262,187 @@ int Cam_SetGain(double dGain)
 	return 1;
 }
 
+int Cam_SetAutoWhite()
+{
+	//status = GXSetEnum(hDevice,GX_ENUM_AWB_LAMP_HOUSE, GX_AWB_LAMP_HOUSE_FLUORESCENCE);
+	//设置连续自动白平衡
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_WHITE_AUTO, GX_BALANCE_WHITE_AUTO_CONTINUOUS);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+
+	}
+	return 1;
+}
 
 
 
+int Cam_GetBalanceRatio_R(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_RED);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+	status = GXGetFloat(hDevice, GX_FLOAT_GAIN, dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
 
 
+int Cam_SetBalanceRatio_R(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_RED);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
 
+	status = GXSetFloat(hDevice, GX_FLOAT_GAIN, *dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
+int Cam_GetBalanceRatio_G(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_GREEN);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+	status = GXGetFloat(hDevice, GX_FLOAT_GAIN, dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
+
+
+int Cam_SetBalanceRatio_G(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_GREEN);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	status = GXSetFloat(hDevice, GX_FLOAT_GAIN, *dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
+int Cam_GetBalanceRatio_B(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_BLUE);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+	status = GXGetFloat(hDevice, GX_FLOAT_GAIN, dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
+
+
+int Cam_SetBalanceRatio_B(double *dGain )
+{
+	status = GXSetEnum(hDevice,GX_ENUM_BALANCE_RATIO_SELECTOR, GX_BALANCE_RATIO_SELECTOR_BLUE);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	status = GXSetFloat(hDevice, GX_FLOAT_GAIN, *dGain);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+
+	return  1;
+}
+
+int Cam_GetAll(double *dGain[5] )
+{
+//Cam_GetExposure
+	int ret= Cam_GetExposure(dGain[0]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret = Cam_GetGain(dGain[1]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret = Cam_GetBalanceRatio_R(dGain[2]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret = Cam_GetBalanceRatio_G(dGain[3]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret = Cam_GetBalanceRatio_B(dGain[4]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	return 1;
+}
+
+int Cam_SetAll(double *dGain[5])
+{
+	int ret = Cam_SetExposure(*dGain[0]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret=Cam_SetGain(*dGain[1]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret=Cam_SetBalanceRatio_R(dGain[2]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret=Cam_SetBalanceRatio_G(dGain[3]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	ret=Cam_SetBalanceRatio_B(dGain[4]);
+	if(ret == 0 )
+	{
+		return 0;
+	}
+	return 1;
+}
+int Cam_Reset()
+{
+	status = GXSendCommand(hDevice, GX_COMMAND_DEVICE_RESET);
+	if (status != GX_STATUS_SUCCESS)
+	{
+		return 0;
+	}
+	return 1;
+}

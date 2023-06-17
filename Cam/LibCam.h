@@ -6,15 +6,21 @@
 
 #include <iostream>
 #include "GxIAPI.h"
+#include <opencv2/highgui.hpp>
+#include <opencv2/opencv_modules.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include "../Base/Bash64.h"
+#include "DxImageProc.h"
 
 using namespace std;
+using namespace cv;
 
 
 
 //打开相机
 int Cam_Open();
 //相机初始化
-int Cam_Inti();
+//int Cam_Inti();
 //关闭相机
 int Cam_Close();
 //回调函数注册
@@ -46,9 +52,22 @@ int Cam_GetGain(double *dGain);
 //设置增益
 int Cam_SetGain(double dGain);
 
+
+int Cam_SetAutoWhite();
+
+int Cam_GetBalanceRatio_R(double *dGain );
+int Cam_SetBalanceRatio_R(double *dGain );
+
+int Cam_GetBalanceRatio_G(double *dGain );
+int Cam_SetBalanceRatio_G(double *dGain );
+
+int Cam_GetBalanceRatio_B(double *dGain );
+int Cam_SetBalanceRatio_B(double *dGain );
+
+int Cam_GetAll(double *dGain[5]);
+int Cam_SetAll(double *dGain[5]);
+int Cam_Reset();
 #endif
-
-
 
 
 
