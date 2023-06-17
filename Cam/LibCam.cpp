@@ -377,30 +377,30 @@ int Cam_SetBalanceRatio_B(double *dGain )
 	return  1;
 }
 
-int Cam_GetAll(double *dGain)
+int Cam_GetAll(double *dGain[5])
 {
 //Cam_GetExposure
-	int ret= Cam_GetExposure(dGain);
+	int ret= Cam_GetExposure(*dGain);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetGain(dGain+1);
+	ret = Cam_GetGain(*dGain+1);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_R(dGain+2);
+	ret = Cam_GetBalanceRatio_R(*dGain+2);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_G(dGain+3);
+	ret = Cam_GetBalanceRatio_G(*dGain+3);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret = Cam_GetBalanceRatio_B(dGain+4);
+	ret = Cam_GetBalanceRatio_B(*dGain+4);
 	if(ret == 0 )
 	{
 		return 0;
@@ -408,29 +408,29 @@ int Cam_GetAll(double *dGain)
 	return 1;
 }
 
-int Cam_SetAll(double *dGain)
+int Cam_SetAll(double *dGain[5])
 {
-	int ret = Cam_SetExposure(*dGain);
+	int ret = Cam_SetExposure(*dGain[0]);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetGain(*(dGain+1));
+	ret=Cam_SetGain(*dGain[1]);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_R(dGain+2);
+	ret=Cam_SetBalanceRatio_R(*dGain+2);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_G(dGain+3);
+	ret=Cam_SetBalanceRatio_G(*dGain+3);
 	if(ret == 0 )
 	{
 		return 0;
 	}
-	ret=Cam_SetBalanceRatio_B(dGain+4);
+	ret=Cam_SetBalanceRatio_B(*dGain+4);
 	if(ret == 0 )
 	{
 		return 0;
@@ -459,8 +459,8 @@ struct Cam_Method arr[] = {{"Cam_GetExposure",NULL,Cam_GetExposure}
 			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_R}
 			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_G}
 			   ,{"Cam_SetBalanceRatio_R",NULL,Cam_SetBalanceRatio_B}
-			   ,{"Cam_GetAll",NULL,Cam_GetAll}
-			   ,{"Cam_SetAll",NULL,Cam_SetAll}
+			   ,{"Cam_GetAll",NULL,NULL,NULL,NULL,NULL,Cam_GetAll}
+			   ,{"Cam_SetAll",NULL,NULL,NULL,NULL,NULL,Cam_SetAll}
 			   ,{"Cam_Reset",NULL,NULL,NULL,NULL,Cam_Reset}
 			  };
 

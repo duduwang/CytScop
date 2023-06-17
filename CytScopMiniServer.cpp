@@ -130,10 +130,10 @@ int modbus_option(const cJSON* json,uint16_t* val)
 	return ret_val > -1?0:-1;
 }
 
-int cam_option(const cJSON* json,const cJSON* outdata) 
+int cam_option(const cJSON* json,cJSON* outdata,char* method) 
 {
 
-	Cam_Method* sMethod = getMethod("Cam_SetAutoWhite");
+	Cam_Method* sMethod = getMethod(method);
 	if(sMethod == NULL)
 	{
 		printf("sMethod is null");
@@ -141,85 +141,43 @@ int cam_option(const cJSON* json,const cJSON* outdata)
 	}
 	if(sMethod->nmethod != NULL)
 	{
-		printf("nmethod is %s\n",sMethod->method_name);
 		int x = (sMethod->nmethod)();
-		printf("nmethod return %d\n",x);
 		return  0;
 	}
-
-/*
-	char* cmd = cJSON_GetObjectItem(json, "cmd")->valuestring;
-	const cJSON* data = cJSON_GetObjectItem(json, "data");
-	if(strcmp(cmd,"SetGain")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetGain(dGain);
-	}
-	if(strcmp(cmd,"SetExposureTime")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetExposure(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_R")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_R(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_G")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_G(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_B")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_B(dGain);
-	}
-	if(strcmp(cmd,"SetAutoWhite")==0)
-	{	
-		return Cam_SetAutoWhite();
-	}
-	if(strcmp(cmd,"SetTrigger")==0)
-	{	
-		bool isTrigger = = cJSON_GetObjectItem(data, "val")->boolvalue;
-		return Cam_Trigger(isTrigger);
-	}
-	if(strcmp(cmd,"Reset")==0)
-	{	
-		return Cam_Reset();
-	}
-	if(strcmp(cmd,"SetAll")==0)
-	{	
-		double[5] dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetAll(dGain);
-	}
-	if(strcmp(cmd,"SetGain")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetGain(dGain);
-	}
-	if(strcmp(cmd,"SetExposureTime")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetExposure(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_R")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_R(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_G")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_G(dGain);
-	}
-	if(strcmp(cmd,"SetBalanceRatio_B")==0)
-	{	
-		double dGain  = cJSON_GetObjectItem(data, "val")->doublevalue;
-		return Cam_SetBalanceRatio_B(dGain);
+	if(sMethod->dmethod != NULL)
+	{
+		cJSON* data = cJSON_GetObjectItem(json, "data");
+		double val  = cJSON_GetObjectItem(data, "val")->valuedouble;
+		return (sMethod->dmethod)(val);
 	}
 
-*/
+	if(sMethod->dpmethod != NULL)
+	{
+		double val ; 
+		int x = (sMethod->dpmethod)(&val);
+		if(x == 0)
+		{
+			cJSON_AddNumberToObject(outdata,"val",val);
+		}
+		return  x;
+	}
+	if(sMethod->bmethod != NULL)
+	{
+		cJSON* data = cJSON_GetObjectItem(json, "data");
+		bool val  = cJSON_GetObjectItem(data, "val")->valueint;
+		return (sMethod->bmethod)(val);
+	}
+	if(sMethod->cmethod != NULL)
+	{
+		char*  val[2048] ; 
+		int x = (sMethod->cmethod)(*val);
+		if(x == 0)
+		{
+			cJSON_AddStringToObject(outdata,"val",*val);
+		}
+		return  x;
+	}
+	return -1;
 }
 
 
@@ -227,8 +185,8 @@ int main()
 {
 	cJSON* jsonObj = cJSON_CreateObject();
 	cJSON* data= cJSON_CreateObject();
-printf("test \n");
-	cam_option(jsonObj,data);
+	int ret =cam_option(jsonObj,data,"Cam_SetAutoWhite");
+printf("ret is %d\n",ret);
 	return 0;
 /*
 	cJSON* jsonObj = cJSON_CreateObject();
@@ -325,7 +283,8 @@ char* recvStrData(char* jsonstr)
 			 break;
 		case CAM:
 			 {
-				 code = cam_option(jsonObj,data);
+				 char* tmp = cJSON_GetObjectItem(jsonObj, "cmd")->valuestring;
+				 code = cam_option(jsonObj,data,tmp);
 				 msg = "ok";
 			 }
 			 break;

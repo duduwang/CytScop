@@ -64,8 +64,8 @@ int Cam_SetBalanceRatio_G(double *dGain );
 int Cam_GetBalanceRatio_B(double *dGain );
 int Cam_SetBalanceRatio_B(double *dGain );
 
-int Cam_GetAll(double *dGain);
-int Cam_SetAll(double *dGain);
+int Cam_GetAll(double *dGain[5]);
+int Cam_SetAll(double *dGain[5]);
 int Cam_Reset();
 
 struct Cam_Method
@@ -76,6 +76,7 @@ struct Cam_Method
 	int(*bmethod)(bool);
 	int(*cmethod)(char*);
 	int(*nmethod)();
+	int(*damethod)(double*[5]);
 };
 
 
