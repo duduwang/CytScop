@@ -478,3 +478,16 @@ Cam_Method* getMethod(char* method_name)
 	return NULL;
 }
 
+char*  get_Err()
+{
+//	GX_STATUS status = GX_STATUS_SUCCESS; GX_STATUSerrCode = GX_STATUS_SUCCESS; 
+	char*pszTemp =NULL;
+	size_t nSize = 0;
+	//传入 NULL 指针，获取实际长度，然后申请 buffer 再获取描述信息
+	GXGetLastError(NULL, NULL, &nSize);
+	pszTemp =new char[nSize];
+	status =GXGetLastError(NULL, pszTemp, &nSize);
+	//delete pszTemp;
+	return pszTemp;
+}
+

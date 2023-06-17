@@ -124,10 +124,10 @@ int modbus_option(const cJSON* json,uint16_t* val)
 		val[0] =tmp;
 		printf("val %X\n",val);
 		ret_val = set(register_offset,val);
-		return ret_val > -1?0:-1;
+		return ret_val > -1?1:-1;
 	}
 	ret_val= get(register_offset,val);
-	return ret_val > -1?0:-1;
+	return ret_val > -1?1:-1;
 }
 
 int cam_option(const cJSON* json,cJSON* outdata,char* method) 
@@ -141,8 +141,7 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 	}
 	if(sMethod->nmethod != NULL)
 	{
-		int x = (sMethod->nmethod)();
-		return  0;
+		return (sMethod->nmethod)();
 	}
 	if(sMethod->dmethod != NULL)
 	{
@@ -155,10 +154,11 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 	{
 		double val ; 
 		int x = (sMethod->dpmethod)(&val);
-		if(x == 0)
+		if(x != 0)
 		{
 			cJSON_AddNumberToObject(outdata,"val",val);
 		}
+printf("err : %s\n",get_Err());
 		return  x;
 	}
 	if(sMethod->bmethod != NULL)
@@ -171,7 +171,7 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 	{
 		char*  val[2048] ; 
 		int x = (sMethod->cmethod)(*val);
-		if(x == 0)
+		if(x != 0)
 		{
 			cJSON_AddStringToObject(outdata,"val",*val);
 		}
@@ -186,6 +186,7 @@ int main()
 	cJSON* jsonObj = cJSON_CreateObject();
 	cJSON* data= cJSON_CreateObject();
 	int ret =cam_option(jsonObj,data,"Cam_SetAutoWhite");
+printf("err : %s\n",get_Err());
 printf("ret is %d\n",ret);
 	return 0;
 /*

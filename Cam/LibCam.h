@@ -82,6 +82,7 @@ struct Cam_Method
 
 Cam_Method* getMethod(char* method_name);
 
+char*  get_Err();
 #endif
 
 
