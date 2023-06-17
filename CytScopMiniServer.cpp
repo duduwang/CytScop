@@ -141,13 +141,24 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 	}
 	if(sMethod->nmethod != NULL)
 	{
-		return (sMethod->nmethod)();
+		int ret = (sMethod->nmethod)();
+		if(ret!= 0){
+			return 0;
+		}
+		return -1;
 	}
 	if(sMethod->dmethod != NULL)
 	{
 		cJSON* data = cJSON_GetObjectItem(json, "data");
+		if(data == NULL){
+			return -1;
+		}
 		double val  = cJSON_GetObjectItem(data, "val")->valuedouble;
-		return (sMethod->dmethod)(val);
+		int ret = (sMethod->dmethod)(val);
+		if(ret!= 0){
+			return 0;
+		}
+		return -1;
 	}
 
 	if(sMethod->dpmethod != NULL)
@@ -157,25 +168,70 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 		if(x != 0)
 		{
 			cJSON_AddNumberToObject(outdata,"val",val);
+			return 0;
 		}
-printf("err : %s\n",get_Err());
-		return  x;
+		return  -1;
 	}
 	if(sMethod->bmethod != NULL)
 	{
 		cJSON* data = cJSON_GetObjectItem(json, "data");
+		if(data == NULL){
+			return -1;
+		}
 		bool val  = cJSON_GetObjectItem(data, "val")->valueint;
-		return (sMethod->bmethod)(val);
+		int ret = (sMethod->bmethod)(val);
+		if(ret!= 0){
+			return 0;
+		}
+		return -1;
 	}
 	if(sMethod->cmethod != NULL)
 	{
-		char*  val[2048] ; 
-		int x = (sMethod->cmethod)(*val);
+		char*  val; 
+		int x = (sMethod->cmethod)(val);
 		if(x != 0)
 		{
-			cJSON_AddStringToObject(outdata,"val",*val);
+			cJSON_AddStringToObject(outdata,"val",val);
+			return 0;
 		}
-		return  x;
+		return  -1;
+	}
+	if(sMethod->damethod != NULL)
+	{
+		double  val[5]; 
+		cJSON* data = cJSON_GetObjectItem(json, "data");
+		if(data == NULL){
+			return -1;
+		}
+		cJSON* array =  cJSON_GetObjectItem(data,"val");
+		val[0]  = cJSON_GetArrayItem(array, 0)->valuedouble;
+		val[1]  = cJSON_GetArrayItem(array, 1)->valuedouble;
+		val[2]  = cJSON_GetArrayItem(array, 2)->valuedouble;
+		val[3]  = cJSON_GetArrayItem(array, 3)->valuedouble;
+		val[4]  = cJSON_GetArrayItem(array, 4)->valuedouble;
+		int x = (sMethod->damethod)(val);
+		if(x != 0){
+			return 0;
+		}
+		return  -1;
+	}
+	if(sMethod->dapmethod != NULL)
+	{
+		double  val[5]; 
+		int x = (sMethod->damethod)(val);
+		if(x != 0)
+		{
+			cJSON* array=cJSON_CreateArray();
+			//cJSON_AddItemToArray(,arrayobj);
+			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[0]));
+			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[1]));
+			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[2]));
+			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[3]));
+			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[4]));
+			cJSON_AddItemToObject(outdata,"val",array);
+			return 0;
+		}
+		return  -1;
 	}
 	return -1;
 }
@@ -183,12 +239,6 @@ printf("err : %s\n",get_Err());
 
 int main()
 {
-	cJSON* jsonObj = cJSON_CreateObject();
-	cJSON* data= cJSON_CreateObject();
-	int ret =cam_option(jsonObj,data,"Cam_SetAutoWhite");
-printf("err : %s\n",get_Err());
-printf("ret is %d\n",ret);
-	return 0;
 /*
 	cJSON* jsonObj = cJSON_CreateObject();
 	cJSON_AddStringToObject(jsonObj,"cmd","ls");
@@ -286,7 +336,11 @@ char* recvStrData(char* jsonstr)
 			 {
 				 char* tmp = cJSON_GetObjectItem(jsonObj, "cmd")->valuestring;
 				 code = cam_option(jsonObj,data,tmp);
-				 msg = "ok";
+				 if(code != 0){
+					 msg = get_Err();
+				 }else{
+					 msg="sucess";
+				 }
 			 }
 			 break;
 		default :
