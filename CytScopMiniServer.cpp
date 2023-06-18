@@ -222,7 +222,6 @@ int cam_option(const cJSON* json,cJSON* outdata,char* method)
 		if(x != 0)
 		{
 			cJSON* array=cJSON_CreateArray();
-			//cJSON_AddItemToArray(,arrayobj);
 			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[0]));
 			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[1]));
 			cJSON_AddItemToArray(array, cJSON_CreateNumber(val[2]));
