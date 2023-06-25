@@ -5,7 +5,7 @@
 
 
 #define MAX_FILE_LEN  1024*10
-char* allowed[] = {"ls","pwd","cd"};
+char const  *allowed[] = {"ls","pwd","cd"};
 bool is_allowed(const char* p)
 {
 	int ret = -1;
@@ -14,7 +14,7 @@ bool is_allowed(const char* p)
 	}
 	for(int i=0;i< (sizeof(allowed)/sizeof(char*)) ;i++)
 	{
-		char* tmp =allowed[i];
+		char const *tmp =allowed[i];
 		printf("i %d tmp %s p %s\n",i,tmp,p);
 		if(strcmp(tmp,p)==0)
 		{

@@ -37,7 +37,7 @@ int Cam_Open()
 	//打开设备
 	stOpenParam.accessMode = GX_ACCESS_EXCLUSIVE;
 	stOpenParam.openMode = GX_OPEN_INDEX;
-	stOpenParam.pszContent = "1";
+	stOpenParam.pszContent = (char*)"1";
 	status = GXOpenDevice(&stOpenParam, &hDevice);
 	if (status != GX_STATUS_SUCCESS)
 	{
@@ -128,6 +128,7 @@ int Cam_Snap(char* img)
 		GXDQBuf(hDevice, &pFrameBuffer, 1000);
 		GXStreamOff(hDevice);
 	}
+	return 0;
 }
 
 
@@ -469,7 +470,7 @@ Cam_Method* getMethod(char* method_name)
 {
 	for(int i=0;i<sizeof(arr)/sizeof(Cam_Method);i++)
 	{
-		char* tmp = arr[i].method_name;
+		char const *tmp = arr[i].method_name;
 		if(strcmp(method_name,tmp)==0)
 		{
 			return &arr[i];

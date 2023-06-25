@@ -338,13 +338,13 @@ char* recvStrData(char* jsonstr)
 				 if(code != 0){
 					 msg = get_Err();
 				 }else{
-					 msg="sucess";
+					 msg=(char*)"sucess";
 				 }
 			 }
 			 break;
 		default :
 			 code = -1;
-			 msg = "deviceId is err\n";
+			 msg = (char*)"deviceId is err\n";
 	}
 	cJSON_Delete(jsonObj);
 	char* ret = response(code,msg,data);

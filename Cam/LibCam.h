@@ -70,7 +70,7 @@ int Cam_Reset();
 
 struct Cam_Method
 {
-	char* method_name;
+	char const * method_name;
 	int(*dmethod)(double);
 	int(*dpmethod)(double*);
 	int(*bmethod)(bool);

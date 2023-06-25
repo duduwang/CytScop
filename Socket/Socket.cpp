@@ -126,7 +126,7 @@ void* socketSend(char* data,size_t len)
 
 
 	}    
-
+	return 0;
 }
 
 
@@ -161,6 +161,7 @@ int socket_Init()
 		return EXIT_FAILURE;  
 	}  
 	printf("listen success\n");  
+	return 0;
 }
 
 
