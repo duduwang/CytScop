@@ -41,6 +41,7 @@ add_subdirectory(Cam)
 add_subdirectory(Base)
 add_subdirectory(Slave)
 add_subdirectory(Socket)
+add_subdirectory(Test)
 
 
 # 指定生成目标 

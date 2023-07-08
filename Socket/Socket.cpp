@@ -96,7 +96,6 @@ void* socketSend(char* data,size_t len)
 	int strlen = 1024;
 	char str[strlen];
 	int sendLen =0;
-//printf("%d\n",len) ;
 	if(len <= sizeof(str)){
 		send(client_st,data,len,0);
 	}else{
@@ -132,10 +131,10 @@ void* socketSend(char* data,size_t len)
 
 int st;
 int connum =0;
-int socket_Init()
+int socket_Init(int port)
 {
 
-	int port = 1234;  
+	//int port = 1234;  
 	st = socket(AF_INET, SOCK_STREAM, 0); 
 
 	int opt = SO_REUSEADDR;

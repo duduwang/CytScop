@@ -17,7 +17,8 @@
 
 enum DEVICE { CAM=1,SYS,STM };
 char* response(int code,const char* msg,cJSON* data);
-
+int PORT = 1234;
+int BROADCAST_PORT= 1900;
 
 using namespace std;
 using namespace cv;
@@ -257,7 +258,7 @@ int main()
 	Cam_SetAcquisition(true);
 	printf("socket init...\n");
 
-	socket_Init();
+	socket_Init(PORT);
 	printf("Socket Start...\n");
 	Socket_Start();
 	//

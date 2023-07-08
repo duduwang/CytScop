@@ -12,7 +12,7 @@
 
 void* recvsocket(void *ptr)  ;
 void* sendsocket(void *ptr)  ;
-int socket_Init();
+int socket_Init(int port);
 int Socket_Start();
 int getconnum();
 void* socketSend(char* data,size_t len);

@@ -41,8 +41,8 @@ endif()
 
 
 # 指定生成目标 
-add_executable(TestBrodcast TestBroadcast.cpp)
+add_executable(TestBroadcast TestBroadcast.cpp)
 add_executable(TestCam TestCam.cpp)
 # 添加链接库
-target_link_libraries(TestBrodcast  LibCam Base  -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)
+target_link_libraries(TestBroadcast  LibCam Base  -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)
 target_link_libraries(TestCam  LibCam Base  -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)
