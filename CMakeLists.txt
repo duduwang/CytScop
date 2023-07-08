@@ -47,4 +47,4 @@ add_subdirectory(Test)
 # 指定生成目标 
 add_executable(CytScopMiniServer CytScopMiniServer.cpp)
 # 添加链接库
-target_link_libraries(CytScopMiniServer LibSlave Socket LibCam Base -lmodbus -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)
+target_link_libraries(CytScopMiniServer LibSlave Socket Broadcast LibCam Base -lmodbus -lcjson -lgxiapi -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lopencv_flann -lpthread)

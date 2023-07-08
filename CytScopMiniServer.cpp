@@ -5,6 +5,7 @@
 #include "Cam/LibCam.h"
 #include "Cam/DxImageProc.h"
 #include "Socket/Socket.h"
+#include "Socket/Broadcast.h"
 #include "Base/ExecuteCommand.h"
 #include "Base/Bash64.h"
 #include <string.h>
@@ -261,6 +262,7 @@ int main()
 	socket_Init(PORT);
 	printf("Socket Start...\n");
 	Socket_Start();
+	Broadcast_Start(BROADCAST_PORT);
 	//
 	//
 	//	Cam_SetExposure(2000000000000.0);
