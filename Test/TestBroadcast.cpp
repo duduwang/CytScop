@@ -39,13 +39,15 @@ int main()
 		while (1)
 		{
 			int slen;
-			char buf[40];
+			char buf[85];
 			sockaddr_in recvAddr;
 			int rAddrLen = sizeof(recvAddr);
-			if ((slen = recvfrom(sock, buf, 40, 0, (sockaddr *)&recvAddr, (socklen_t *)&rAddrLen)) > 0)
+			if ((slen = recvfrom(sock, buf, sizeof(buf), MSG_WAITALL, (sockaddr *)&recvAddr, (socklen_t *)&rAddrLen)) > 0)
 			{
+				printf("recvfrom len %d\n",slen);
 				printf("Recv Data From UDP Server %s\n",buf);
-				break;
+				return 0;
+				//break;
 			}
 			else
 			{

@@ -251,18 +251,20 @@ int main()
 	//链接下位机
 	dev_conn("/dev/ttyS0", 115200, 'N', 8, 1);
 
-	printf("open Caming...\n");
-	Cam_Open();
-	printf("registerCapture...");
-	Cam_RegisterCapture(OnFrameCallbackFun);
-	printf("SetAcquisition...\n");
-	Cam_SetAcquisition(true);
+//	printf("open Caming...\n");
+//	Cam_Open();
+//	printf("registerCapture...");
+//	Cam_RegisterCapture(OnFrameCallbackFun);
+//	printf("SetAcquisition...\n");
+//	Cam_SetAcquisition(true);
+	printf("Broadcast_Start %d\n",BROADCAST_PORT);
+	Broadcast_Start(BROADCAST_PORT);
+	printf("Broadcast_Start end \n");
 	printf("socket init...\n");
 
 	socket_Init(PORT);
 	printf("Socket Start...\n");
 	Socket_Start();
-	Broadcast_Start(BROADCAST_PORT);
 	//
 	//
 	//	Cam_SetExposure(2000000000000.0);
@@ -273,7 +275,7 @@ int main()
 
 
 
-
+/*
 	char inCh;
 	for(;;)
 	{
@@ -286,6 +288,7 @@ int main()
 
 		}
 	}
+	*/
 	dev_close();
 
 	return 0;

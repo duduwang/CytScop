@@ -3,10 +3,10 @@
 
 
 int B_PORT = 1900;
-const char* IP;
+char IP[64];
 
 
-const char*  getIpStr()
+void  getIpStr()
 {
 	struct ifaddrs *myaddrs, *ifa;
 	void *in_addr;
@@ -33,14 +33,12 @@ const char*  getIpStr()
 					in_addr = &s4->sin_addr;
 					break;
 				}
-
 			case AF_INET6:
 				{
 					struct sockaddr_in6 *s6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 					in_addr = &s6->sin6_addr;
 					break;
 				}
-
 			default:
 				continue;
 		}
@@ -48,11 +46,16 @@ const char*  getIpStr()
 		if (inet_ntop(ifa->ifa_addr->sa_family, in_addr, buf, sizeof(buf)))
 		{
 			printf("%s: %s\n", ifa->ifa_name, buf);
+			if(strcmp(ifa->ifa_name,"eth0") == 0)
+			{
+				//printf("return %s \n",buf);
+				strcpy(IP,buf);
+				return;
+			}
 		}
 	}
 
 	freeifaddrs(myaddrs);
-    return &buf[0];
 }
 
 void* asyncData(void* ptr)
@@ -66,20 +69,23 @@ void* asyncData(void* ptr)
 		int rAddrLen = sizeof(recvAddr);
 		if ((slen = recvfrom(sock, buf, 40, 0, (struct sockaddr *)&recvAddr, (socklen_t *)&rAddrLen)) > 0)
 		{
-			char sbuf[25];
+			char sbuf[85];
 			sprintf(sbuf,"ip:%s port:%d\n",IP,B_PORT);
-			sendto(sock, sbuf, 20, 0, (struct sockaddr *)&recvAddr, sizeof(recvAddr));
-			break;
+			//printf("output %s \n" ,sbuf);
+			sendto(sock, sbuf, sizeof(sbuf), 0, (struct sockaddr *)&recvAddr, sizeof(recvAddr));
+			//break;
 		}
 	}
 }
 int Broadcast_Start(int port)
 {
+	printf("port is %d\n",port);
 	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	B_PORT = port;
 	int bl = 1;
 	if(-1 == setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &bl, sizeof(bl)))
 	{
+		printf("setsockopt error");
 		return -1;
 	}
 	struct sockaddr_in locAddr;
@@ -89,10 +95,12 @@ int Broadcast_Start(int port)
 
 	if (-1 == bind(sock, (struct sockaddr *)&locAddr, sizeof(locAddr)))
 	{
+		printf("bind error");
 		return 0;
 	}
-	IP = getIpStr();
+	getIpStr();
 	pthread_t thrd1;  
+//	printf("------ip %s\n",IP);
 	pthread_create(&thrd1, NULL, asyncData, &sock);  
 }
 
